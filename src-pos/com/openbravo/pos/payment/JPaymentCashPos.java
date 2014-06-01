@@ -112,6 +112,11 @@ public class JPaymentCashPos extends javax.swing.JPanel implements JPaymentInter
         
         m_notifier.setStatus(m_dPaid > 0.0, iCompare >= 0);
     }
+
+    @Override
+    public PaymentInfo executePaymentDepo() {
+        return null;
+    }
     
     private class RecalculateState implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {

@@ -86,6 +86,11 @@ public class JPaymentPaper extends javax.swing.JPanel implements JPaymentInterfa
         // it is allowed to pay more
         m_notifier.setStatus(m_dTicket > 0.0, iCompare >= 0);
     }
+
+    @Override
+    public PaymentInfo executePaymentDepo() {
+        return null;
+    }
     
     private class RecalculateState implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {

@@ -120,5 +120,10 @@ public class JPaymentMagcard extends javax.swing.JPanel implements JPaymentInter
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextArea jlblMessage;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public PaymentInfo executePaymentDepo() {
+        return null;
+    }
     
 }

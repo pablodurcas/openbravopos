@@ -40,7 +40,9 @@ import com.openbravo.pos.scripting.ScriptEngine;
 import com.openbravo.pos.scripting.ScriptException;
 import com.openbravo.pos.scripting.ScriptFactory;
 import com.openbravo.pos.ticket.TicketInfo;
+import com.openbravo.pos.util.RoundUtils;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -60,6 +62,7 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
     
     private CustomerInfoExt customerext;
     private DirtyManager dirty;
+    private DirtyManager dirtyDepo;
 
     /** Creates new form CustomersPayment */
     public CustomersPayment() {
@@ -68,9 +71,13 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         
         editorcard.addEditorKeys(m_jKeys);
         txtNotes.addEditorKeys(m_jKeys);
-
+        txtDepoAccount.addEditorKeys(m_jKeys);
+        
         dirty = new DirtyManager();
         txtNotes.addPropertyChangeListener("Text", dirty);
+        
+        dirtyDepo = new DirtyManager();
+        txtDepoAccount.addPropertyChangeListener("Text", dirtyDepo);
     }
 
     public void init(AppView app) throws BeanFactoryException {
@@ -133,10 +140,18 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         txtCurdate.setText(Formats.DATE.formatValue(customer.getCurdate()));
 
         txtNotes.setEnabled(true);
+        
+        //txtDepoAccount.reset();
+        //txtDepoAccount.setDoubleValue(0.0);
+        txtCurdepo.setText(Formats.CURRENCY.formatValue(customer.getCurdepo()));
+        txtCurdepodate.setText(Formats.DATE.formatValue(customer.getCurdepodate()));
+        txtDepoAccount.setEnabled(true);
+        btnDepo.setEnabled(false);
 
         dirty.setDirty(false);
+        dirtyDepo.setDirty(false);
 
-        btnSave.setEnabled(true);    
+        btnSave.setEnabled(true);
         btnPay.setEnabled(customer.getCurdebt() != null && customer.getCurdebt().doubleValue() > 0.0);
     }
 
@@ -154,7 +169,15 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
 
         txtNotes.setEnabled(false);
 
+        txtDepoAccount.reset();
+        //txtDepoAccount.setDoubleValue(0.0);
+        txtCurdepo.setText(null);
+        txtCurdepodate.setText(null);
+        txtDepoAccount.setEnabled(false);
+        btnDepo.setEnabled(false);
+        
         dirty.setDirty(false);
+        dirtyDepo.setDirty(false);
 
         btnSave.setEnabled(false);
         btnPay.setEnabled(false);
@@ -230,8 +253,11 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         jPanel6 = new javax.swing.JPanel();
         btnCustomer = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
-        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
         btnPay = new javax.swing.JButton();
+        jPanel7 = new javax.swing.JPanel();
+        btnDepo = new javax.swing.JButton();
+        txtDepoAccount = new com.openbravo.editor.JEditorCurrency();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         m_jKeys = new com.openbravo.editor.JEditorKeys();
@@ -253,10 +279,16 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         txtNotes = new com.openbravo.editor.JEditorString();
         txtTaxId = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        txtCurdepo = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        txtCurdepodate = new javax.swing.JTextField();
 
         setLayout(new java.awt.BorderLayout());
 
         jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jPanel6.setMinimumSize(new java.awt.Dimension(100, 100));
 
         btnCustomer.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/openbravo/images/kuser.png"))); // NOI18N
         btnCustomer.setFocusPainted(false);
@@ -281,7 +313,7 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
             }
         });
         jPanel6.add(btnSave);
-        jPanel6.add(jSeparator1);
+        jPanel6.add(jSeparator2);
 
         btnPay.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/openbravo/images/greenled.png"))); // NOI18N
         btnPay.setText(AppLocal.getIntString("button.pay")); // NOI18N
@@ -296,9 +328,33 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         });
         jPanel6.add(btnPay);
 
-        jPanel2.add(jPanel6, java.awt.BorderLayout.LINE_START);
+        jPanel2.add(jPanel6, java.awt.BorderLayout.WEST);
 
-        add(jPanel2, java.awt.BorderLayout.PAGE_START);
+        btnDepo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/openbravo/images/greenled.png"))); // NOI18N
+        btnDepo.setText(AppLocal.getIntString("button.depo")); // NOI18N
+        btnDepo.setFocusPainted(false);
+        btnDepo.setFocusable(false);
+        btnDepo.setMargin(new java.awt.Insets(8, 14, 8, 14));
+        btnDepo.setRequestFocusEnabled(false);
+        btnDepo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDepoActionPerformed(evt);
+            }
+        });
+        jPanel7.add(btnDepo);
+
+        txtDepoAccount.setMinimumSize(new java.awt.Dimension(100, 50));
+        txtDepoAccount.setPreferredSize(new java.awt.Dimension(150, 27));
+        txtDepoAccount.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                txtDepoAccountPropertyChange(evt);
+            }
+        });
+        jPanel7.add(txtDepoAccount);
+
+        jPanel2.add(jPanel7, java.awt.BorderLayout.EAST);
+
+        add(jPanel2, java.awt.BorderLayout.NORTH);
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 
@@ -338,7 +394,7 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
 
         jPanel3.add(jPanel4, java.awt.BorderLayout.NORTH);
 
-        add(jPanel3, java.awt.BorderLayout.LINE_END);
+        add(jPanel3, java.awt.BorderLayout.EAST);
 
         jLabel3.setText(AppLocal.getIntString("label.name")); // NOI18N
 
@@ -381,6 +437,20 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
 
         jLabel7.setText(AppLocal.getIntString("label.taxid")); // NOI18N
 
+        jLabel4.setText(AppLocal.getIntString("label.curdepo")); // NOI18N
+
+        txtCurdepo.setEditable(false);
+        txtCurdepo.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtCurdepo.setFocusable(false);
+        txtCurdepo.setRequestFocusEnabled(false);
+
+        jLabel8.setText(AppLocal.getIntString("label.curdepodate")); // NOI18N
+
+        txtCurdepodate.setEditable(false);
+        txtCurdepodate.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtCurdepodate.setFocusable(false);
+        txtCurdepodate.setRequestFocusEnabled(false);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -409,14 +479,22 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtMaxdebt, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtCurdepo, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtCurdebt, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtCurdate, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(97, Short.MAX_VALUE))
+                        .addComponent(txtCurdate, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtCurdepodate, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(69, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -449,7 +527,15 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(txtCurdate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(89, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtCurdepo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(txtCurdepodate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(134, Short.MAX_VALUE))
         );
 
         add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -562,8 +648,112 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
         }
         
 }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void txtDepoAccountPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_txtDepoAccountPropertyChange
+        // TODO add your handling code here:
+
+        if(evt.getPropertyName().equals("Edition") == true){
+            try {
+                if( txtDepoAccount.getDoubleValue() != null){
+                    double value =  txtDepoAccount.getDoubleValue();
+                    if (value != 0.0)
+                        btnDepo.setEnabled(true);
+                    else
+                        btnDepo.setEnabled(false);
+                }else{
+                    btnDepo.setEnabled(false);
+            }
+            } catch (NumberFormatException e) {
+                btnDepo.setEnabled(false);
+            }
+            
+        }
+    }//GEN-LAST:event_txtDepoAccountPropertyChange
+
+    private void btnDepoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepoActionPerformed
+        paymentdialog.setPrintSelected(true);
+
+        if (paymentdialog.showDialog(txtDepoAccount.getDoubleValue(), null)) {
+            
+            // Save the ticket
+            TicketInfo ticket = new TicketInfo();
+            ticket.setTicketType(TicketInfo.RECEIPT_PAYMENT);
+
+            List<PaymentInfo> payments = paymentdialog.getSelectedPayments();
+
+            double total = 0.0;
+            for (PaymentInfo p : payments) {
+                total += p.getTotal();
+            }
+
+            double m_dPaid = total;
+            double m_dPaid_Debt = 0.0;
+            double m_dPaid_Depo = 0.0;
+            double  curdebt, curdepo;
+            curdebt = customerext.getCurdebt() == null ? 0.0 : customerext.getCurdebt();
+            curdepo = customerext.getCurdepo() == null ? 0.0 : customerext.getCurdepo();
+
+            if (RoundUtils.compare(RoundUtils.getValue(curdebt - m_dPaid),RoundUtils.getValue(0.0)) < 0){
+                m_dPaid_Debt = curdebt;
+                m_dPaid_Depo = m_dPaid - curdebt;
+            }else{
+                m_dPaid_Debt = m_dPaid;
+                m_dPaid_Depo = 0.0;
+                
+            }            
+
+            if(RoundUtils.compare(RoundUtils.getValue(m_dPaid_Debt),RoundUtils.getValue(0.0)) != 0)
+                payments.add(new PaymentInfoTicket(-m_dPaid_Debt, "debtpaid"));
+            
+            if(RoundUtils.compare(RoundUtils.getValue(m_dPaid_Depo),RoundUtils.getValue(0.0)) != 0)
+                payments.add(new PaymentInfoTicket(-m_dPaid_Depo, "debtDepopaid"));
+
+            ticket.setPayments(payments);
+
+            ticket.setUser(app.getAppUserView().getUser().getUserInfo());
+            ticket.setActiveCash(app.getActiveCashIndex());
+            ticket.setDate(new Date());
+            ticket.setCustomer(customerext);
+
+            try {
+                dlsales.saveTicket(ticket, app.getInventoryLocation());
+            } catch (BasicException eData) {
+                MessageInf msg = new MessageInf(MessageInf.SGN_NOTICE, AppLocal.getIntString("message.nosaveticket"), eData);
+                msg.show(this);
+            }
+
+
+            // reload customer
+            CustomerInfoExt c;
+            try {
+                c = dlsales.loadCustomerExt(customerext.getId());
+                if (c == null) {
+                    MessageInf msg = new MessageInf(MessageInf.SGN_WARNING, AppLocal.getIntString("message.cannotfindcustomer"));
+                    msg.show(this);
+                } else {
+                    editCustomer(c);
+                }
+            } catch (BasicException ex) {
+                c = null;
+                MessageInf msg = new MessageInf(MessageInf.SGN_WARNING, AppLocal.getIntString("message.cannotfindcustomer"), ex);
+                msg.show(this);
+            }
+
+            printTicket(paymentdialog.isPrintSelected()
+                    ? "Printer.CustomerPaid"
+                    : "Printer.CustomerPaid2",
+                    ticket, c);
+        }
+        txtDepoAccount.reset();
+        //txtDepoAccount.activate();
+        editorcard.reset();
+        editorcard.activate();
+
+    }//GEN-LAST:event_btnDepoActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCustomer;
+    private javax.swing.JButton btnDepo;
     private javax.swing.JButton btnPay;
     private javax.swing.JButton btnSave;
     private com.openbravo.editor.JEditorString editorcard;
@@ -572,20 +762,26 @@ public class CustomersPayment extends javax.swing.JPanel implements JPanelView, 
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JSeparator jSeparator2;
     private com.openbravo.editor.JEditorKeys m_jKeys;
     private javax.swing.JTextField txtCard;
     private javax.swing.JTextField txtCurdate;
     private javax.swing.JTextField txtCurdebt;
+    private javax.swing.JTextField txtCurdepo;
+    private javax.swing.JTextField txtCurdepodate;
+    private com.openbravo.editor.JEditorCurrency txtDepoAccount;
     private javax.swing.JTextField txtMaxdebt;
     private javax.swing.JTextField txtName;
     private com.openbravo.editor.JEditorString txtNotes;

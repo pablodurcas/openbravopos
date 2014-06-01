@@ -425,12 +425,17 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
     private void m_jButtonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m_jButtonAddActionPerformed
 
-        PaymentInfo returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePayment();
+        PaymentInfo returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePaymentDepo();
         if (returnPayment != null) {
             m_aPaymentInfo.add(returnPayment);
             printState();
-        }        
-        
+        }
+
+         returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePayment();
+        if (returnPayment != null) {
+            m_aPaymentInfo.add(returnPayment);
+            printState();
+        }
     }//GEN-LAST:event_m_jButtonAddActionPerformed
 
     private void m_jTabPaymentStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_m_jTabPaymentStateChanged
@@ -443,12 +448,23 @@ public abstract class JPaymentSelect extends javax.swing.JDialog
 
     private void m_jButtonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m_jButtonOKActionPerformed
         
-        PaymentInfo returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePayment();
+        boolean aux= false;
+        PaymentInfo returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePaymentDepo();
         if (returnPayment != null) {
             m_aPaymentInfo.add(returnPayment);
+            aux = true;
+        }
+        
+        returnPayment = ((JPaymentInterface) m_jTabPayment.getSelectedComponent()).executePayment();
+        if (returnPayment != null) {
+            m_aPaymentInfo.add(returnPayment);
+            aux = true;
+        }
+        if(aux){
             accepted = true;
             dispose();
-        }           
+        }
+            
         
     }//GEN-LAST:event_m_jButtonOKActionPerformed
 

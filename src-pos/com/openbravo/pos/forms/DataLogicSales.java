@@ -269,7 +269,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         return (CustomerInfoExt) new PreparedSentence(s
                 , "SELECT ID, TAXID, SEARCHKEY, NAME, CARD, TAXCATEGORY, NOTES, MAXDEBT, VISIBLE, CURDATE, CURDEBT" +
                   ", FIRSTNAME, LASTNAME, EMAIL, PHONE, PHONE2, FAX" +
-                  ", ADDRESS, ADDRESS2, POSTAL, CITY, REGION, COUNTRY" +
+                  ", ADDRESS, ADDRESS2, POSTAL, CITY, REGION, COUNTRY, CURDEPO, CURDEPODATE" +
                   " FROM CUSTOMERS WHERE CARD = ? AND VISIBLE = " + s.DB.TRUE()
                 , SerializerWriteString.INSTANCE
                 , new CustomerExtRead()).find(card);
@@ -279,7 +279,7 @@ public class DataLogicSales extends BeanFactoryDataSingle {
         return (CustomerInfoExt) new PreparedSentence(s
                 , "SELECT ID, TAXID, SEARCHKEY, NAME, CARD, TAXCATEGORY, NOTES, MAXDEBT, VISIBLE, CURDATE, CURDEBT" +
                   ", FIRSTNAME, LASTNAME, EMAIL, PHONE, PHONE2, FAX" +
-                  ", ADDRESS, ADDRESS2, POSTAL, CITY, REGION, COUNTRY" +
+                  ", ADDRESS, ADDRESS2, POSTAL, CITY, REGION, COUNTRY, CURDEPO, CURDEPODATE" +
                 " FROM CUSTOMERS WHERE ID = ?"
                 , SerializerWriteString.INSTANCE
                 , new CustomerExtRead()).find(id);
@@ -419,6 +419,19 @@ public class DataLogicSales extends BeanFactoryDataSingle {
                         getDebtUpdate().exec(new DataParams() { public void writeValues() throws BasicException {
                             setDouble(1, ticket.getCustomer().getCurdebt());
                             setTimestamp(2, ticket.getCustomer().getCurdate());
+                            setString(3, ticket.getCustomer().getId());
+                        }});
+                        
+                        
+                        
+                    } else if("debtDepo".equals(p.getName()) || "debtDepopaid".equals(p.getName())){
+                        // udate customer fields...
+                        ticket.getCustomer().updateCurDepo(p.getTotal(), ticket.getDate());
+                        
+                        // save customer fields...
+                        getDepoUpdate().exec(new DataParams() { public void writeValues() throws BasicException {
+                            setDouble(1, ticket.getCustomer().getCurdepo());
+                            setTimestamp(2, ticket.getCustomer().getCurdepodate());
                             setString(3, ticket.getCustomer().getId());
                         }});
                     }
@@ -593,6 +606,13 @@ public class DataLogicSales extends BeanFactoryDataSingle {
 
         return new PreparedSentence(s
                 , "UPDATE CUSTOMERS SET CURDEBT = ?, CURDATE = ? WHERE ID = ?"
+                , SerializerWriteParams.INSTANCE);
+    }
+    
+    public final SentenceExec getDepoUpdate() {
+
+        return new PreparedSentence(s
+                , "UPDATE CUSTOMERS SET CURDEPO = ?, CURDEPODATE = ? WHERE ID = ?"
                 , SerializerWriteParams.INSTANCE);
     }
 
@@ -771,6 +791,9 @@ public class DataLogicSales extends BeanFactoryDataSingle {
             c.setCity(dr.getString(21));
             c.setRegion(dr.getString(22));
             c.setCountry(dr.getString(23));
+            c.setCurdepo(dr.getDouble(24));
+            c.setCurdepodate(dr.getTimestamp(25));
+            
 
             return c;
         }

@@ -67,5 +67,10 @@ public class JPaymentFree extends javax.swing.JPanel implements JPaymentInterfac
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public PaymentInfo executePaymentDepo() {
+        return null;
+    }
     
 }

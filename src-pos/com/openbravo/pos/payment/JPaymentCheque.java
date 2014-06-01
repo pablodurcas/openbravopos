@@ -78,6 +78,11 @@ public class JPaymentCheque extends javax.swing.JPanel implements JPaymentInterf
         // if iCompare > 0 then the payment is not valid
         m_notifier.setStatus(m_dPaid > 0.0 && iCompare <= 0, iCompare == 0);
     }
+
+    @Override
+    public PaymentInfo executePaymentDepo() {
+        return null;
+    }
     
     private class RecalculateState implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {

@@ -83,14 +83,32 @@ public class PaymentsModel {
         
         
         // Pagos
+//        Object[] valtickets = (Object []) new StaticSentence(app.getSession()
+//            , "SELECT COUNT(*), SUM(PAYMENTS.TOTAL) " +
+//              "FROM PAYMENTS, RECEIPTS " +
+//              "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND RECEIPTS.MONEY = ?"
+//            , SerializerWriteString.INSTANCE
+//            , new SerializerReadBasic(new Datas[] {Datas.INT, Datas.DOUBLE}))
+//            .find(app.getActiveCashIndex());
+        
+        //Pagos modificado para que no acumule las formas de pago 'free' 'debt' 'debtpaid'.
+        //Ojo cuando se realiza un pago de debito con un cliente se generan dos entradas
+        //en la tabla PAYMENTS, una tipo 'cash' y otra tipo 'debtpaid'
+//PDC
         Object[] valtickets = (Object []) new StaticSentence(app.getSession()
             , "SELECT COUNT(*), SUM(PAYMENTS.TOTAL) " +
               "FROM PAYMENTS, RECEIPTS " +
-              "WHERE PAYMENTS.RECEIPT = RECEIPTS.ID AND RECEIPTS.MONEY = ?"
+              "WHERE PAYMENTS.PAYMENT <> 'debt' AND " +
+              "PAYMENTS.PAYMENT <> 'debtpaid' AND " +
+              "PAYMENTS.PAYMENT <> 'debtDepopaid' AND " +
+              "PAYMENTS.PAYMENT <> 'debtDepo' AND " +
+              "PAYMENTS.PAYMENT <> 'free' AND " +
+              "PAYMENTS.RECEIPT = RECEIPTS.ID AND RECEIPTS.MONEY = ?"
             , SerializerWriteString.INSTANCE
             , new SerializerReadBasic(new Datas[] {Datas.INT, Datas.DOUBLE}))
-            .find(app.getActiveCashIndex());
-            
+            .find(app.getActiveCashIndex());            
+    
+        
         if (valtickets == null) {
             p.m_iPayments = new Integer(0);
             p.m_dPaymentsTotal = new Double(0.0);

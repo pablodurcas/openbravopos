@@ -35,7 +35,9 @@ public class CustomerInfoExt extends CustomerInfo {
     protected String card;
     protected Double maxdebt;
     protected Date curdate;
+    protected Date curdepodate;
     protected Double curdebt;
+    protected Double curdepo;
     protected String firstname;
     protected String lastname;
     protected String email;
@@ -123,10 +125,8 @@ public class CustomerInfoExt extends CustomerInfo {
         curdebt = curdebt == null ? amount : curdebt + amount;
 
         if (RoundUtils.compare(curdebt, 0.0) > 0) {
-            if (curdate == null) {
                 // new date
                 curdate = d;
-            }
         } else if (RoundUtils.compare(curdebt, 0.0) == 0) {
             curdebt = null;
             curdate = null;
@@ -135,6 +135,42 @@ public class CustomerInfoExt extends CustomerInfo {
         }
     }
 
+    public Double getCurdepo() {
+        return curdepo;
+    }
+
+    public Date getCurdepodate() {
+        return curdepodate;
+    }
+    
+    public void setCurdepodate(Date curdepodate) {
+        this.curdepodate = curdepodate;
+    }
+    
+    public String printCurDepo() {       
+        return Formats.CURRENCY.formatValue(RoundUtils.getValue(getCurdepo()));
+    }
+    
+    public void setCurdepo(Double curdepo) {
+        this.curdepo = curdepo;
+    }
+    
+    public void updateCurDepo(Double amount, Date d) {
+        
+        curdepo = curdepo == null ? -amount : curdepo - amount;
+
+        if (RoundUtils.compare(curdepo, 0.0) > 0) {
+                // new date
+                curdepodate = d;
+        } else if (RoundUtils.compare(curdepo, 0.0) == 0) {
+            curdepodate = null;
+        } else { // < 0
+            curdepodate = null;
+            curdepo = null;
+        }
+    }
+
+    
     public String getFirstname() {
         return firstname;
     }
