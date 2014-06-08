@@ -49,6 +49,8 @@ public class ProductInfoExt {
     protected double m_dPriceSell;
     protected BufferedImage m_Image;
     protected Properties attributes;
+    protected String m_sRefAsocc;
+    protected int m_Number;
     
     /** Creates new ProductInfo */
     public ProductInfoExt() {
@@ -65,6 +67,8 @@ public class ProductInfoExt {
         m_dPriceSell = 0.0;
         m_Image = null;
         attributes = new Properties();
+        m_sRefAsocc = null;
+        m_Number = 0;
     }
 
     public final String getID() {
@@ -85,6 +89,22 @@ public class ProductInfoExt {
 
     public final String getCode() {
         return m_sCode;
+    }
+    
+    public final String getRefAsocc() {
+        return m_sRefAsocc;
+    }
+    
+    public final void setRefAsocc(String sRefAsocc) {
+        m_sRefAsocc = sRefAsocc;
+    }
+    
+    public final int getNumber() {
+        return m_Number;
+    }
+    
+    public final void setNumber(int dNumber) {
+        m_Number = dNumber;
     }
 
     public final void setCode(String sCode) {
@@ -109,6 +129,10 @@ public class ProductInfoExt {
 
     public final boolean isScale() {
         return m_bScale;
+    }
+    
+    public final boolean isWithAsocc() {
+        return (getRefAsocc() != null && getRefAsocc().compareTo("") != 0 && getNumber() != 0);
     }
 
     public final void setScale(boolean bValue) {
@@ -202,6 +226,8 @@ public class ProductInfoExt {
             product.attributesetid = dr.getString(11);
             product.m_Image = ImageUtils.readImage(dr.getBytes(12));
             product.attributes = ImageUtils.readProperties(dr.getBytes(13));
+            product.m_sRefAsocc = dr.getString(14);
+            product.m_Number = dr.getInt(15).intValue();
             return product;
         }};
     }

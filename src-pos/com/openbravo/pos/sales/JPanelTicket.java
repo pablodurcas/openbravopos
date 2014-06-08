@@ -529,6 +529,20 @@ public abstract class JPanelTicket extends JPanel implements JPanelView, BeanFac
                 new MessageInf(MessageInf.SGN_WARNING, AppLocal.getIntString("message.noweight"), e).show(this);           
                 stateToZero(); 
             }
+        } else if (prod.isWithAsocc()){
+            try {
+                ProductInfoExt oProduct = dlSales.getProductInfoByCode(prod.getRefAsocc());
+                if (oProduct == null) {                  
+                    Toolkit.getDefaultToolkit().beep();                   
+                    new MessageInf(MessageInf.SGN_WARNING, AppLocal.getIntString("message.noproduct")).show(this);           
+                    stateToZero();
+                } else {
+                    incProduct(prod.getNumber(), oProduct);
+                }
+            } catch (BasicException eData) {
+                stateToZero();           
+                new MessageInf(eData).show(this);           
+            }                        
         } else {
             // No es un producto que se pese o no hay balanza
             incProduct(1.0, prod);
